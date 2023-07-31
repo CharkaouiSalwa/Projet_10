@@ -25,26 +25,26 @@ class UserSerializer(serializers.ModelSerializer):
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     pass
 
+
 class ContributorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contributor
-        fields = '__all__'
+        fields = ['user', 'projects', 'issues', 'comments']  # Remplacez __all__ par la liste des champs souhaités
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
-        model = Project
-        fields = '__all__'
+        fields = ['contributors', 'creator']
 
 class IssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
-        fields = '__all__'
+        fields = ['project', 'status', 'priority', 'creator', 'taches']
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = ['issue', 'creator']
 
 
 
