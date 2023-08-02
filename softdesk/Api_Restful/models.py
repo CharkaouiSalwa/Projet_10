@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+
 class User(AbstractUser):
     age = models.IntegerField()
     consent = models.BooleanField()
@@ -13,9 +14,21 @@ class Contributor(models.Model):
     issues = models.ManyToManyField('Api_Restful.Issue', related_name='contributor_issues')
     comments = models.ManyToManyField('Api_Restful.Comment', related_name='contributor_comments')
 
+
 class Project(models.Model):
+
+    name = models.CharField(max_length=100, default="name")
+    description = models.TextField(default="description")
+    PROJECT_TYPES = [
+        ('backend', 'Back-end'),
+        ('frontend', 'Front-end'),
+        ('ios', 'iOS'),
+        ('android', 'Android'),
+    ]
+    project_type = models.CharField(max_length=10, choices=PROJECT_TYPES, default='backend')  # jai mis backend par defaut
     contributors = models.ManyToManyField(Contributor, related_name='project_contributors')
     creator = models.ForeignKey(Contributor, on_delete=models.CASCADE, related_name='created_projects')
+
 
 class Issue(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='issue_projects')
@@ -27,6 +40,5 @@ class Issue(models.Model):
 class Comment(models.Model):
     issue = models.ForeignKey(Issue, on_delete=models.CASCADE, related_name='comment_issues')
     creator = models.ForeignKey(Contributor, on_delete=models.CASCADE, related_name='created_comments')
-
 
 

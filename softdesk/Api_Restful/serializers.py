@@ -32,9 +32,12 @@ class ContributorSerializer(serializers.ModelSerializer):
         fields = ['user', 'projects', 'issues', 'comments']  # Remplacez __all__ par la liste des champs souhaités
 
 class ProjectSerializer(serializers.ModelSerializer):
+    contributors = serializers.PrimaryKeyRelatedField(queryset=Contributor.objects.all(), required=False, many=True)
+    creator = serializers.PrimaryKeyRelatedField(queryset=Contributor.objects.all(), required=False)
+
     class Meta:
         model = Project
-        fields = ['contributors', 'creator']
+        fields = ('id', 'name', 'description', 'project_type', 'contributors', 'creator')
 
 class IssueSerializer(serializers.ModelSerializer):
     class Meta:
@@ -45,6 +48,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['issue', 'creator']
+
 
 
 
