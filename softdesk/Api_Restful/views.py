@@ -20,9 +20,11 @@ class ProjectListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        # Enregistrez l'utilisateur actuel comme un nouvel objet Contributor
-        contributor = Contributor.objects.create(user=self.request.user)
-        # Enregistrez le projet en lui attribuant le contributeur et le créateur
+        # Récupérer l'utilisateur actuel
+        user = self.request.user
+        # Créer un nouvel objet Contributor pour cet utilisateur (si nécessaire)
+        contributor, _ = Contributor.objects.get_or_create(user=user)
+        # Enregistrer le projet en lui attribuant le contributeur et le créateur
         serializer.save(creator=contributor)
         project = serializer.instance
         project.contributors.add(contributor)
@@ -40,6 +42,7 @@ class ProjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_update(self, serializer):
         serializer.save()
+
 
     def perform_destroy(self, instance):
         instance.delete()
