@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from Api_Restful.views import UserRegisterView, UserLoginView, ProjectListCreateView, ProjectRetrieveUpdateDestroyView
+from Api_Restful.views import UserRegisterView, UserLoginView, ProjectListCreateView, \
+    ProjectRetrieveUpdateDestroyView, IssueCreateView, IssueListView
 
 
 urlpatterns = [
@@ -13,5 +14,7 @@ urlpatterns = [
     path('login/', UserLoginView.as_view(), name='user-login'),
     path('projects/', ProjectListCreateView.as_view(), name='project-list-create'),
     path('projects/<int:pk>/', ProjectRetrieveUpdateDestroyView.as_view(), name='project-retrieve-update-destroy'),
+    path('issues/', IssueCreateView.as_view(), name='create-issue'),
+    path('issues/list/', IssueListView.as_view(), name='list-issues'),
 
 ]

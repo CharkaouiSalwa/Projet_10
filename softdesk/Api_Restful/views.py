@@ -1,10 +1,13 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import UserSerializer, MyTokenObtainPairSerializer
-from .models import Project, Contributor
-from .serializers import ProjectSerializer
+from .models import Project, Contributor, Issue
+from .serializers import ProjectSerializer, IssueSerializer
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 
 
 class UserRegisterView(generics.CreateAPIView):
@@ -12,6 +15,14 @@ class UserRegisterView(generics.CreateAPIView):
 
 class UserLoginView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+
+class IsProjectCreatorOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        # Vérifie si l'utilisateur est l'auteur du projet (peut modifier/supprimer)
+        if request.method in permissions.SAFE_METHODS:
+            return True  # Les utilisateurs peuvent effectuer des requêtes GET, HEAD, OPTIONS
+        return obj.creator.user == request.user
 
 class ProjectListCreateView(generics.ListCreateAPIView):
     queryset = Project.objects.all()
@@ -38,11 +49,22 @@ class ProjectListCreateView(generics.ListCreateAPIView):
 class ProjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsProjectCreatorOrReadOnly]
 
     def perform_update(self, serializer):
         serializer.save()
 
-
     def perform_destroy(self, instance):
         instance.delete()
+
+class IssueCreateView(CreateAPIView):
+    serializer_class = IssueSerializer
+
+    def perform_create(self, serializer):
+        contributor = Contributor.objects.get(user=self.request.user)
+        serializer.save(creator=contributor)
+
+
+class IssueListView(ListAPIView):
+    queryset = Issue.objects.all()
+    serializer_class = IssueSerializer

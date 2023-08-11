@@ -35,11 +35,31 @@ class Project(models.Model):
 
 
 class Issue(models.Model):
+    PRIORITY_CHOICES = [
+        ('LOW', 'Low'),
+        ('MEDIUM', 'Medium'),
+        ('HIGH', 'High'),
+    ]
+    STATUS_CHOICES = [
+        ('TO_DO', 'To Do'),
+        ('IN_PROGRESS', 'In Progress'),
+        ('FINISHED', 'Finished'),
+    ]
+    TAG_CHOICES = [
+        ('BUG', 'Bug'),
+        ('FEATURE', 'Feature'),
+        ('TASK', 'Task'),
+    ]
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='issue_projects')
-    status = models.CharField(max_length=100)
-    priority = models.CharField(max_length=100)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='TO_DO')
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='LOW')
+    tag = models.CharField(max_length=10, choices=TAG_CHOICES, default='TASK')
     creator = models.ForeignKey(Contributor, on_delete=models.CASCADE, related_name='created_issues')
-    taches = models.CharField(max_length=100)
+    assignee = models.ForeignKey(Contributor, on_delete=models.CASCADE, null=True, blank=True, related_name='assigned_issues')
+    name = models.CharField(max_length=100, default="name")
+    description = models.TextField(default="description")
+
+
 
 class Comment(models.Model):
     issue = models.ForeignKey(Issue, on_delete=models.CASCADE, related_name='comment_issues')

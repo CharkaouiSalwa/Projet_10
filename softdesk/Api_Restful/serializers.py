@@ -25,11 +25,10 @@ class UserSerializer(serializers.ModelSerializer):
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     pass
 
-
 class ContributorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contributor
-        fields = ['user', 'projects', 'issues', 'comments']  # Remplacez __all__ par la liste des champs souhaités
+        fields = ['user', 'projects', 'issues', 'comments']
 
 class ProjectSerializer(serializers.ModelSerializer):
     contributors = serializers.PrimaryKeyRelatedField(queryset=Contributor.objects.all(), required=False, many=True)
@@ -40,9 +39,13 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'project_type', 'contributors', 'creator')
 
 class IssueSerializer(serializers.ModelSerializer):
+    # Champ pour sélectionner le contributeur auquel l'issue sera assignée
+    assignee = serializers.PrimaryKeyRelatedField(queryset=Contributor.objects.all(), required=False)
+
     class Meta:
         model = Issue
-        fields = ['project', 'status', 'priority', 'creator', 'taches']
+        fields = ['id', 'project', 'status', 'priority', 'tag', 'creator', 'assignee', 'name', 'description']
+
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
