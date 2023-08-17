@@ -1,14 +1,11 @@
-from rest_framework import generics, permissions, status
-from rest_framework.generics import CreateAPIView, ListAPIView, ListCreateAPIView
+from rest_framework import generics, permissions
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import UserSerializer, MyTokenObtainPairSerializer
 from .models import Project, Contributor, Issue, Comment
 from .serializers import ProjectSerializer, IssueSerializer, CommentSerializer
-from rest_framework.status import HTTP_201_CREATED
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
 
 
 class UserRegisterView(generics.CreateAPIView):
