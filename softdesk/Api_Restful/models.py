@@ -1,5 +1,7 @@
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import uuid
 
 
 class User(AbstractUser):
@@ -62,7 +64,9 @@ class Issue(models.Model):
 
 
 class Comment(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    issue_link = models.URLField(blank=True, null=True)
+    description = models.TextField(default="description")
     issue = models.ForeignKey(Issue, on_delete=models.CASCADE, related_name='comment_issues')
-    creator = models.ForeignKey(Contributor, on_delete=models.CASCADE, related_name='created_comments')
-
-
+    author = models.ForeignKey(User, on_delete=models.CASCADE,related_name='comments', default=None) # Utilisateur comme auteur
+    created_time = models.DateTimeField(default=timezone.now, editable=False)

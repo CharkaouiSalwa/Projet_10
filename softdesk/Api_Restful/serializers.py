@@ -50,10 +50,8 @@ class IssueSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['issue', 'creator']
-
-
-
+        fields = ['id', 'uuid', 'issue_link', 'description', 'issue', 'author', 'created_time']
+        read_only_fields = ['id', 'uuid', 'created_time'] # on peut pas modifier ces champs
 
 
 

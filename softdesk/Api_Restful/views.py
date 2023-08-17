@@ -1,13 +1,14 @@
 from rest_framework import generics, permissions, status
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, ListCreateAPIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import UserSerializer, MyTokenObtainPairSerializer
-from .models import Project, Contributor, Issue
-from .serializers import ProjectSerializer, IssueSerializer
+from .models import Project, Contributor, Issue, Comment
+from .serializers import ProjectSerializer, IssueSerializer, CommentSerializer
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-
 
 
 class UserRegisterView(generics.CreateAPIView):
@@ -16,19 +17,20 @@ class UserRegisterView(generics.CreateAPIView):
 class UserLoginView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
-
+#définir la pérmission
 class IsProjectCreatorOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         # Vérifie si l'utilisateur est l'auteur du projet (peut modifier/supprimer)
         if request.method in permissions.SAFE_METHODS:
             return True  # Les utilisateurs peuvent effectuer des requêtes GET, HEAD, OPTIONS
         return obj.creator.user == request.user
-
+#class Project
 class ProjectListCreateView(generics.ListCreateAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     # Seuls les utilisateurs authentifiés peuvent créer et lister les projets
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = PageNumberPagination
 
     def perform_create(self, serializer):
         # Récupérer l'utilisateur actuel
@@ -40,11 +42,11 @@ class ProjectListCreateView(generics.ListCreateAPIView):
         project = serializer.instance
         project.contributors.add(contributor)
 
-    def post(self, request, *args, **kwargs):
-        # Surchargez la méthode post pour renvoyer une réponse HTTP_201_CREATED avec les données du projet
-        response = super().post(request, *args, **kwargs)
-        response.status_code = HTTP_201_CREATED
-        return response
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
 class ProjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Project.objects.all()
@@ -57,14 +59,56 @@ class ProjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     def perform_destroy(self, instance):
         instance.delete()
 
-class IssueCreateView(CreateAPIView):
+#class Issue
+class IssueListCreateView(generics.ListCreateAPIView):
+    queryset = Issue.objects.all()
     serializer_class = IssueSerializer
+    # Seuls les utilisateurs authentifiés peuvent créer et lister les issues
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = PageNumberPagination
 
     def perform_create(self, serializer):
         contributor = Contributor.objects.get(user=self.request.user)
         serializer.save(creator=contributor)
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
-class IssueListView(ListAPIView):
-    queryset = Issue.objects.all()
-    serializer_class = IssueSerializer
+
+#class Comment
+class CommentListCreateView(generics.ListCreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = PageNumberPagination
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
+
+class CommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_update(self, serializer):
+        comment = serializer.instance
+        if self.request.user == comment.author:
+            serializer.save()
+        else:
+            raise PermissionDenied("Vous n'avez pas la permission de mettre à jour cette ressource.")
+
+    def perform_destroy(self, instance):
+        if self.request.user == instance.author:
+            instance.delete()
+        else:
+            raise PermissionDenied("Vous n'avez pas la permission de supprimer cette ressource.")
