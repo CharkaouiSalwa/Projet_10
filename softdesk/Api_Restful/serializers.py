@@ -9,6 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'password', 'can_be_contacted', 'can_data_be_shared', 'age', 'consent']
+        extra_kwargs = {'password': {'write_only': True}}
 
     def validate_age(self, value):
         if value < 15:
@@ -22,29 +23,36 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     pass
 
+
 class ContributorSerializer(serializers.ModelSerializer):
+    user_name = serializers.CharField(source='user.username', read_only=True)
+
     class Meta:
         model = Contributor
-        fields = ['user', 'projects', 'issues', 'comments']
+        fields = ['id', 'user_name']
 
 class ProjectSerializer(serializers.ModelSerializer):
-    contributors = serializers.PrimaryKeyRelatedField(queryset=Contributor.objects.all(), required=False, many=True)
-    creator = serializers.PrimaryKeyRelatedField(queryset=Contributor.objects.all(), required=False)
+    creator = ContributorSerializer(read_only=True)
 
     class Meta:
         model = Project
-        fields = ('id', 'name', 'description', 'project_type', 'contributors', 'creator')
+        fields = ['name', 'description', 'creator']
 
+class ProjectIdNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['name']
 class IssueSerializer(serializers.ModelSerializer):
     # Champ pour sélectionner le contributeur auquel l'issue sera assignée
-    assignee = serializers.PrimaryKeyRelatedField(queryset=Contributor.objects.all(), required=False)
-
+    creator = ContributorSerializer()
+    project = ProjectIdNameSerializer()
     class Meta:
         model = Issue
-        fields = ['id', 'project', 'status', 'priority', 'tag', 'creator', 'assignee', 'name', 'description']
+        fields = ['id','name', 'description', 'status', 'priority', 'tag', 'creator', 'project']
 
 
 class CommentSerializer(serializers.ModelSerializer):

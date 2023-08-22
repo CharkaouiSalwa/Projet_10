@@ -60,36 +60,37 @@ class ProjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class IssueListCreateView(generics.ListCreateAPIView):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializer
-    # Seuls les utilisateurs authentifiés peuvent créer et lister les issues
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        id_project = self.request.query_params.get('id_project')
+        if id_project:
+            queryset = queryset.filter(project_id=id_project)
+        return queryset
 
     def perform_create(self, serializer):
         contributor = Contributor.objects.get(user=self.request.user)
         serializer.save(creator=contributor)
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        serializer = self.serializer_class(page, many=True)
-        return self.get_paginated_response(serializer.data)
-
-
 #class Comment
+
 class CommentListCreateView(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        id_issue = self.request.query_params.get('id_issue')
+        if id_issue:
+            queryset = queryset.filter(issue_id=id_issue)
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        serializer = self.serializer_class(page, many=True)
-        return self.get_paginated_response(serializer.data)
 
 
 class CommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
