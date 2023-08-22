@@ -42,14 +42,15 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = ['name', 'description', 'creator']
 
-class ProjectIdNameSerializer(serializers.ModelSerializer):
+class ProjectNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ['name']
+
 class IssueSerializer(serializers.ModelSerializer):
     # Champ pour sélectionner le contributeur auquel l'issue sera assignée
     creator = ContributorSerializer()
-    project = ProjectIdNameSerializer()
+    project = ProjectNameSerializer()
     class Meta:
         model = Issue
         fields = ['id','name', 'description', 'status', 'priority', 'tag', 'creator', 'project']
