@@ -17,17 +17,27 @@ L'objectif du projet est signaler et suivre les problèmes techniques des entrep
 
  - Télécharger le projet depuis [Github](https://github.com/CharkaouiSalwa/Projet_10.git)
  - Se positionner dans le dossier git téléchargé
+ - Installer l'environnement virtuel Pipenv :
+```
+pip install pipenv
+```
  - Créer un environnement virtuel :
 ```
-python -m venv env
+pipenv install 
+
 ```
  - Activer l'environnement virtuel : 
 ```
-source  env/bin/activate
+pipenv shell
+
 ```
- - Installer les bibliothéques nécessaires depuis le fichier requirements.txt :
+ - Installer les dépendances du projets à partir du fichié crée Pipfile :
 ``` shell
-pip install -r requirements.txt
+pipenv install 
+```
+ - Exécuter le projet :
+``` shell
+python manage.py runserver
 ```
 ***
 ### ***Initialisation de la base de données :***
