@@ -58,17 +58,15 @@ class ProjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
 #class Issue
 class IssueListCreateView(generics.ListCreateAPIView):
-    queryset = Issue.objects.all()
     serializer_class = IssueSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        queryset = super().get_queryset()
         id_project = self.request.query_params.get('id_project')
-        if id_project:
-            queryset = queryset.filter(project_id=id_project)
-        return queryset
+        if not id_project:
+            return Issue.objects.none()
+        return Issue.objects.filter(project_id=id_project)
 
     def perform_create(self, serializer):
         contributor = Contributor.objects.get(user=self.request.user)
@@ -77,17 +75,16 @@ class IssueListCreateView(generics.ListCreateAPIView):
 #class Comment
 
 class CommentListCreateView(generics.ListCreateAPIView):
-    queryset = Comment.objects.all()
+
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        queryset = super().get_queryset()
         id_issue = self.request.query_params.get('id_issue')
-        if id_issue:
-            queryset = queryset.filter(issue_id=id_issue)
-        return queryset
+        if not id_issue:
+            return Comment.objects.none()
+        return Comment.objects.filter(issue_id=id_issue)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
