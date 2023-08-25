@@ -51,7 +51,13 @@ class IssueSerializer(serializers.ModelSerializer):
         fields = ['id','name', 'description', 'status', 'priority', 'tag', 'creator']
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username']
+
 class CommentSerializer(serializers.ModelSerializer):
+    author = UserSerializer()
     class Meta:
         model = Comment
         fields = ['id','description', 'author', 'created_time']
