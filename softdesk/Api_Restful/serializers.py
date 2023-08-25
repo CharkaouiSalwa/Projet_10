@@ -42,7 +42,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = ['name', 'description', 'creator']
 
-
 class IssueSerializer(serializers.ModelSerializer):
     # Champ pour sélectionner le contributeur auquel l'issue sera assignée
     creator = ContributorSerializer()
