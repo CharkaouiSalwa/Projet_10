@@ -80,9 +80,7 @@ class IssueListCreateView(generics.ListCreateAPIView):
 
 
 #class Comment
-
 class CommentListCreateView(generics.ListCreateAPIView):
-
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = PageNumberPagination

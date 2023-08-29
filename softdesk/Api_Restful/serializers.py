@@ -40,7 +40,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['id','name', 'description', 'creator']
+        fields = ['id', 'name', 'description', 'creator']
 
 class IssueSerializer(serializers.ModelSerializer):
     creator = ContributorSerializer(read_only=True)
@@ -54,11 +54,10 @@ class UserSerializerAuthor(serializers.ModelSerializer):
         fields = ['id', 'username']
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = UserSerializerAuthor(read_only=True)  # Utiliser read_only=True ici
-
+    author = UserSerializerAuthor(read_only=True)
     class Meta:
         model = Comment
-        fields = ['id', 'description', 'author', 'created_time']
+        fields = ['id', 'description', 'author', 'issue', 'issue_link', 'created_time']
         read_only_fields = ['id', 'uuid', 'created_time']
 
 
