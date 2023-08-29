@@ -88,8 +88,6 @@ class CommentListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
-
 class CommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -98,6 +96,10 @@ class CommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         comment = serializer.instance
         if self.request.user == comment.author:
+            # Récupérer l'auteur actuel du commentaire
+            author = comment.author
+            # Remplacer le champ "author" dans les données validées
+            serializer.validated_data['author'] = author
             serializer.save()
         else:
             raise PermissionDenied("Vous n'avez pas la permission de mettre à jour cette ressource.")

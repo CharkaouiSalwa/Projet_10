@@ -40,7 +40,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['name', 'description', 'creator']
+        fields = ['id','name', 'description', 'creator']
 
 class IssueSerializer(serializers.ModelSerializer):
     # Champ pour sélectionner le contributeur auquel l'issue sera assignée
@@ -54,16 +54,13 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username']
-
 class CommentSerializer(serializers.ModelSerializer):
-    author = UserSerializer()
+    author = UserSerializer(read_only=True)  # Utiliser read_only=True ici
+
     class Meta:
         model = Comment
-        fields = ['id','description', 'author', 'created_time']
-        read_only_fields = ['id', 'uuid', 'created_time'] # on peut pas modifier ces champs
-
-
-
+        fields = ['id', 'description', 'author', 'created_time']
+        read_only_fields = ['id', 'uuid', 'created_time']
 
 
 
