@@ -43,19 +43,18 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ['id','name', 'description', 'creator']
 
 class IssueSerializer(serializers.ModelSerializer):
-    # Champ pour sélectionner le contributeur auquel l'issue sera assignée
-    creator = ContributorSerializer()
+    creator = ContributorSerializer(read_only=True)
     class Meta:
         model = Issue
-        fields = ['id','name', 'description', 'status', 'priority', 'tag', 'creator']
+        fields = ['id', 'name', 'description', 'status', 'priority', 'tag', 'creator']
 
-
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializerAuthor(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username']
+
 class CommentSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)  # Utiliser read_only=True ici
+    author = UserSerializerAuthor(read_only=True)  # Utiliser read_only=True ici
 
     class Meta:
         model = Comment

@@ -69,8 +69,15 @@ class IssueListCreateView(generics.ListCreateAPIView):
         return Issue.objects.filter(project_id=id_project)
 
     def perform_create(self, serializer):
+        project_id = self.request.data.get('project_id')
+        if not project_id:
+            raise ValueError("Project ID is required.")
+
+        project = Project.objects.get(pk=project_id)
         contributor = Contributor.objects.get(user=self.request.user)
-        serializer.save(creator=contributor)
+
+        serializer.save(creator=contributor, project=project)
+
 
 #class Comment
 
@@ -88,6 +95,7 @@ class CommentListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
 class CommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
